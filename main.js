@@ -1,3 +1,6 @@
+import vertexShaderSource from "./shaders/01.vert";
+import fragmentShaderSource from "./shaders/01.frag";
+
 const canvas = document.getElementById("webgl-canvas");
 const gl = canvas.getContext("webgl");
 
@@ -16,22 +19,10 @@ function setCanvasToDisplaySize(canvas) {
   }
 }
 
-setCanvasToDisplaySize(canvas);
-
-window.addEventListener("resize", () => setCanvasToDisplaySize(canvas));
-
-const vertexShaderSource = `
-  attribute vec2 position;
-  void main() {
-    gl_Position = vec4(position, 0.0, 1.0);
-  }
-`;
-
-const fragmentShaderSource = `
-  void main() {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // 赤色
-  }
-`;
+window.addEventListener("resize", () => {
+  setCanvasToDisplaySize(canvas);
+  drawScene();
+});
 
 function compileShader(source, type) {
   const shader = gl.createShader(type);
@@ -64,7 +55,7 @@ if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
 
 gl.useProgram(shaderProgram);
 
-const vertices = [-0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5];
+const vertices = [-1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0]; // Top left, top right, bottom left, bottom right
 
 const vertexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
