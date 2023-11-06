@@ -2,14 +2,17 @@ import vertexShaderSource from "./shaders/01.vert";
 import fragmentShaderSource from "./shaders/01.frag";
 
 const canvas = document.getElementById("webgl-canvas");
-const gl = canvas.getContext("webgl");
-
-if (!gl) {
-  alert("Unable to initialize WebGL.");
-  throw new Error("WebGL not supported");
+if (!(canvas instanceof HTMLCanvasElement)) {
+  throw new Error("The element with id 'webgl-canvas' is not an HTMLCanvasElement.");
 }
 
-function setCanvasToDisplaySize(canvas) {
+const gl = canvas.getContext("webgl2");
+if (!(gl instanceof WebGL2RenderingContext)) {
+  alert("Unable to initialize WebGL2.");
+  throw new Error("WebGL2 not supported");
+}
+
+function setCanvasToDisplaySize(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
   const displayWidth = canvas.clientWidth;
   const displayHeight = canvas.clientHeight;
   if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
@@ -20,12 +23,16 @@ function setCanvasToDisplaySize(canvas) {
 }
 
 window.addEventListener("resize", () => {
-  setCanvasToDisplaySize(canvas);
-  drawScene();
+  setCanvasToDisplaySize(canvas, gl);
+  drawScene(canvas, gl);
 });
 
-function compileShader(source, type) {
+function compileShader(source: string , type: GLenum, gl: WebGL2RenderingContext) {
   const shader = gl.createShader(type);
+  if (!shader) {
+    console.error('Unable to create shader.');
+    return null;
+  }
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -38,10 +45,20 @@ function compileShader(source, type) {
   return shader;
 }
 
-const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
-const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER, gl);
+const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER, gl);
+
+if (!vertexShader || !fragmentShader) {
+  console.error("Shaders were not created successfully");
+  throw new Error("Shaders were not created successfully");
+}
 
 const shaderProgram = gl.createProgram();
+if (!shaderProgram) {
+  console.error("Failed to create shader program");
+  throw new Error("Failed to create shader program");
+}
+
 gl.attachShader(shaderProgram, vertexShader);
 gl.attachShader(shaderProgram, fragmentShader);
 gl.linkProgram(shaderProgram);
@@ -68,8 +85,8 @@ const positionAttributeLocation = gl.getAttribLocation(
 gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-function drawScene() {
-  setCanvasToDisplaySize(canvas);
+function drawScene(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
+  setCanvasToDisplaySize(canvas, gl);
 
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -77,4 +94,4 @@ function drawScene() {
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
-drawScene();
+drawScene(canvas, gl);
