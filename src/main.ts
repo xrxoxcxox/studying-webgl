@@ -29,7 +29,7 @@ function setCanvasToDisplaySize(
 
 window.addEventListener("resize", () => {
   setCanvasToDisplaySize(canvas, gl);
-  drawScene(canvas, gl);
+  drawScene(0, canvas, gl);
 });
 
 function compileShader(
@@ -87,32 +87,37 @@ gl.useProgram(shaderProgram);
 
 // prettier-ignore
 const verticesColors = new Float32Array([
-  // x, y, r, g, b, a
-  -1.0,  1.0, 1.0, 0.0, 0.0, 1.0, // top left (red)
-  -1.0, -1.0, 0.0, 1.0, 0.0, 1.0, // bottom left (green)
-   1.0,  1.0, 0.0, 0.0, 1.0, 1.0, // top right (blue)
-   1.0, -1.0, 1.0, 1.0, 0.0, 1.0, // bottom right (yellow)
+  // x, y
+  -1.0,  1.0,
+  -1.0, -1.0,
+   1.0,  1.0,
+   1.0, -1.0,
 ]);
 
 const vertexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
 
-const a_position = gl.getAttribLocation(shaderProgram, "a_position");
-gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 6 * 4, 0);
-gl.enableVertexAttribArray(a_position);
+const aPosition = gl.getAttribLocation(shaderProgram, "aPosition");
+gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+gl.enableVertexAttribArray(aPosition);
 
-const a_color = gl.getAttribLocation(shaderProgram, "a_color");
-gl.vertexAttribPointer(a_color, 4, gl.FLOAT, false, 6 * 4, 2 * 4);
-gl.enableVertexAttribArray(a_color);
+const uTime = gl.getUniformLocation(shaderProgram, "uTime");
+const uResolution = gl.getUniformLocation(shaderProgram, "uResolution");
 
-function drawScene(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
+function drawScene(time: number, canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
+  const currentTime = time * 0.001;
   setCanvasToDisplaySize(canvas, gl);
+
+  gl.uniform1f(uTime, currentTime);
+  gl.uniform2f(uResolution, canvas.width, canvas.height);
 
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  requestAnimationFrame((time) => drawScene(time, canvas, gl));
 }
 
-drawScene(canvas, gl);
+drawScene(0, canvas, gl);

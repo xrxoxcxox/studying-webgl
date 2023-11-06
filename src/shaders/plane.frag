@@ -2,10 +2,11 @@
 
 precision mediump float;
 
-in vec4 v_color;
+uniform float uTime;
+uniform vec2 uResolution;
 
 out vec4 outColor;
 
 void main() {
-  outColor = v_color;
+  outColor = vec4(sin(uTime), sin(uTime / 2.0), sin(uTime / 3.0), 1.0);
 }
