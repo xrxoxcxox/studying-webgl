@@ -3,7 +3,9 @@ import fragmentShaderSource from "./shaders/plane.frag";
 
 const canvas = document.getElementById("webgl-canvas");
 if (!(canvas instanceof HTMLCanvasElement)) {
-  throw new Error("The element with id 'webgl-canvas' is not an HTMLCanvasElement.");
+  throw new Error(
+    "The element with id 'webgl-canvas' is not an HTMLCanvasElement."
+  );
 }
 
 const gl = canvas.getContext("webgl2");
@@ -12,7 +14,10 @@ if (!(gl instanceof WebGL2RenderingContext)) {
   throw new Error("WebGL2 not supported");
 }
 
-function setCanvasToDisplaySize(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
+function setCanvasToDisplaySize(
+  canvas: HTMLCanvasElement,
+  gl: WebGL2RenderingContext
+) {
   const displayWidth = canvas.clientWidth;
   const displayHeight = canvas.clientHeight;
   if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
@@ -27,10 +32,14 @@ window.addEventListener("resize", () => {
   drawScene(canvas, gl);
 });
 
-function compileShader(source: string , type: GLenum, gl: WebGL2RenderingContext) {
+function compileShader(
+  source: string,
+  type: GLenum,
+  gl: WebGL2RenderingContext
+) {
   const shader = gl.createShader(type);
   if (!shader) {
-    console.error('Unable to create shader.');
+    console.error("Unable to create shader.");
     return null;
   }
   gl.shaderSource(shader, source);
@@ -46,7 +55,11 @@ function compileShader(source: string , type: GLenum, gl: WebGL2RenderingContext
 }
 
 const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER, gl);
-const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER, gl);
+const fragmentShader = compileShader(
+  fragmentShaderSource,
+  gl.FRAGMENT_SHADER,
+  gl
+);
 
 if (!vertexShader || !fragmentShader) {
   console.error("Shaders were not created successfully");
@@ -72,18 +85,26 @@ if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
 
 gl.useProgram(shaderProgram);
 
-const vertices = [-1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0]; // Top left, top right, bottom left, bottom right
+// prettier-ignore
+const verticesColors = new Float32Array([
+  // x, y, r, g, b, a
+  -1.0,  1.0, 1.0, 0.0, 0.0, 1.0, // top left (red)
+  -1.0, -1.0, 0.0, 1.0, 0.0, 1.0, // bottom left (green)
+   1.0,  1.0, 0.0, 0.0, 1.0, 1.0, // top right (blue)
+   1.0, -1.0, 1.0, 1.0, 0.0, 1.0, // bottom right (yellow)
+]);
 
 const vertexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
 
-const positionAttributeLocation = gl.getAttribLocation(
-  shaderProgram,
-  "position"
-);
-gl.enableVertexAttribArray(positionAttributeLocation);
-gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+const a_position = gl.getAttribLocation(shaderProgram, "a_position");
+gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 6 * 4, 0);
+gl.enableVertexAttribArray(a_position);
+
+const a_color = gl.getAttribLocation(shaderProgram, "a_color");
+gl.vertexAttribPointer(a_color, 4, gl.FLOAT, false, 6 * 4, 2 * 4);
+gl.enableVertexAttribArray(a_color);
 
 function drawScene(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
   setCanvasToDisplaySize(canvas, gl);
