@@ -1,5 +1,5 @@
-import vertexShaderSource from "./shaders/01.vert";
-import fragmentShaderSource from "./shaders/01.frag";
+import vertexShaderSource from "./shaders/plane.vert";
+import fragmentShaderSource from "./shaders/plane.frag";
 
 const canvas = document.getElementById("webgl-canvas");
 if (!(canvas instanceof HTMLCanvasElement)) {
