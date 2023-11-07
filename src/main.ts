@@ -86,7 +86,7 @@ if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
 gl.useProgram(shaderProgram);
 
 // prettier-ignore
-const verticesColors = new Float32Array([
+const vertices = new Float32Array([
   // x, y
   -1.0,  1.0,
   -1.0, -1.0,
@@ -96,7 +96,7 @@ const verticesColors = new Float32Array([
 
 const vertexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
+gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
 const aPosition = gl.getAttribLocation(shaderProgram, "aPosition");
 gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);

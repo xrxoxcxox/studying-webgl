@@ -8,5 +8,7 @@ uniform vec2 uResolution;
 out vec4 outColor;
 
 void main() {
-  outColor = vec4(sin(uTime), sin(uTime / 2.0), sin(uTime / 3.0), 1.0);
+  float x = gl_FragCoord.x / uResolution.x;
+  float y = gl_FragCoord.y / uResolution.y;
+  outColor = vec4(x * abs(sin(uTime / 11.0f)), y * abs(sin(uTime / 13.0f)), abs(sin(uTime / 19.0f)), 1.0f);
 }
