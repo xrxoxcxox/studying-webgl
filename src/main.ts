@@ -32,7 +32,7 @@ window.addEventListener("resize", () => {
   drawScene(0, canvas, gl);
 });
 
-function compileShader(
+function setupShader(
   source: string,
   type: GLenum,
   gl: WebGL2RenderingContext
@@ -54,8 +54,8 @@ function compileShader(
   return shader;
 }
 
-const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER, gl);
-const fragmentShader = compileShader(
+const vertexShader = setupShader(vertexShaderSource, gl.VERTEX_SHADER, gl);
+const fragmentShader = setupShader(
   fragmentShaderSource,
   gl.FRAGMENT_SHADER,
   gl
