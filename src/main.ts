@@ -60,4 +60,3 @@ window.addEventListener("resize", resizeCanvasToDisplaySize);
 
 // 初期表示時にもリサイズを実行
 document.addEventListener("DOMContentLoaded", resizeCanvasToDisplaySize);
-
