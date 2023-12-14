@@ -33,6 +33,7 @@ const positions = new Float32Array([
 ]);
 gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 
+// シェーダーの渡すデータの設定
 const positionAttributeLocation = gl.getAttribLocation(
   shaderProgram,
   "aPosition"
@@ -40,11 +41,16 @@ const positionAttributeLocation = gl.getAttribLocation(
 gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
+const timeUniformLocation = gl.getUniformLocation(shaderProgram, "uTime");
+
 // 描画の実行
-function drawScene() {
+function drawScene(time: number) {
+  const currentTime = time * 0.001;
+  gl.uniform1f(timeUniformLocation, currentTime);
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  requestAnimationFrame(drawScene);
 }
 
 // ウィンドウサイズに合わせてcanvasのサイズを変更する
@@ -52,7 +58,7 @@ function resizeCanvasToDisplaySize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   gl.viewport(0, 0, canvas.width, canvas.height);
-  drawScene();
+  drawScene(0.0);
 }
 
 // ウィンドウリサイズイベントに対するリスナーを設定
