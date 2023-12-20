@@ -2,9 +2,9 @@
 
 precision mediump float;
 
-in vec2 vTextureCoord;
-
 uniform float uTime;
+uniform vec2 uResolution;
+uniform vec2 uMousePosition;
 
 out vec4 outColor;
 
@@ -39,11 +39,32 @@ float sNoise(vec2 v) {
 }
 
 void main() {
-  float offset = sNoise(vec2(cos(vTextureCoord.x * pi) + uTime * 0.1, vTextureCoord.y * sin(uTime) * 0.2) - uTime * 0.1);
+  vec2 uv = gl_FragCoord.xy / uResolution;
+
+  // アスペクト比を考慮したUV座標の計算
+  vec2 aspectCorrectedUV = uv;
+  aspectCorrectedUV.x *= uResolution.x / uResolution.y;
+
+  // マウス位置のアスペクト比を補正
+  vec2 aspectCorrectedMouse = uMousePosition;
+  aspectCorrectedMouse.x *= uResolution.x / uResolution.y;
+
+  // マウス位置との距離を計算
+  float mouseDistnace = distance(aspectCorrectedMouse, aspectCorrectedUV);
+  float mouseColorIntensity = 1.0 - smoothstep(0.0, 500.0 / uResolution.x, mouseDistnace);
+  float mouseR = mouseColorIntensity * 0.5;
+  float mouseG = mouseColorIntensity;
+  float mouseB = mouseColorIntensity * 0.8;
+  float mouseA = mouseColorIntensity * 0.2;
+  vec4 mouseColor = vec4(mouseR, mouseG, mouseB, mouseA);
+
+  float offset = sNoise(vec2(cos(uv.x * pi) + uTime * 0.1, uv.y * sin(uTime) * 0.2) - uTime * 0.1);
   float colorValue = mix(1.0, offset, 0.25);
   float r = clamp(colorValue, 0.2, 0.75);
   float g = clamp(colorValue + 0.1, 0.2, 0.85);
   float b = clamp(colorValue * 1.2, 0.2, 0.9);
 
-  outColor = vec4(r, g, b, 1.0);
+  vec4 gradient = vec4(r, g, b, 1.0);
+
+  outColor = mix(gradient, mouseColor, mouseColor.a);
 }

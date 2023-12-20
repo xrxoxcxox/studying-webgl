@@ -2,6 +2,15 @@
 const canvas = document.getElementById("webgl-canvas") as HTMLCanvasElement;
 const gl = canvas.getContext("webgl2") as WebGL2RenderingContext;
 
+let mousePosition = { x: 0, y: 0 };
+
+function getMousePosition(event: MouseEvent) {
+  mousePosition.x = event.clientX / canvas.width;
+  mousePosition.y = 1.0 - (event.clientY / canvas.height); // Y軸を反転
+}
+
+canvas.addEventListener('mousemove', getMousePosition);
+
 // シェーダープログラムの作成
 import vertexShaderSource from "./shaders/plane.vert";
 import fragmentShaderSource from "./shaders/plane.frag";
@@ -33,7 +42,7 @@ const positions = new Float32Array([
 ]);
 gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 
-// シェーダーの渡すデータの設定
+// シェーダーに渡すデータの設定
 const positionAttributeLocation = gl.getAttribLocation(
   shaderProgram,
   "aPosition"
@@ -41,24 +50,32 @@ const positionAttributeLocation = gl.getAttribLocation(
 gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
+const resolutionUniformLocation = gl.getUniformLocation(shaderProgram, 'uResolution');
+
 const timeUniformLocation = gl.getUniformLocation(shaderProgram, "uTime");
 
+const mousePositionUniformLocation = gl.getUniformLocation(shaderProgram, "uMousePosition");
+
 // 描画の実行
-function drawScene(time: number) {
+function drawScene(width: number, height: number, time: number) {
   const currentTime = time * 0.001;
   gl.uniform1f(timeUniformLocation, currentTime);
+  gl.uniform2f(resolutionUniformLocation, width, height);
+  gl.uniform2f(mousePositionUniformLocation, mousePosition.x, mousePosition.y);
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  requestAnimationFrame(drawScene);
+  requestAnimationFrame((currentTime) => drawScene(width, height, currentTime));
 }
 
 // ウィンドウサイズに合わせてcanvasのサイズを変更する
 function resizeCanvasToDisplaySize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  gl.viewport(0, 0, canvas.width, canvas.height);
-  drawScene(0.0);
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  canvas.width = width;
+  canvas.height = height;
+  gl.viewport(0, 0, width, height);
+  drawScene(width, height, 0.0);
 }
 
 // ウィンドウリサイズイベントに対するリスナーを設定
